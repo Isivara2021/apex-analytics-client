@@ -1,0 +1,223 @@
+<div class="page">
+  <div class="container">
+
+    <!-- Page header -->
+    <div class="page-header dash-header">
+      <div>
+        <h1>Good {{ getGreeting() }}, {{ authService.getUsername() }} 👋</h1>
+        <p>Here's your fitness overview for today.</p>
+      </div>
+      <div class="header-actions">
+        <a routerLink="/log-workout" class="btn btn-primary">
+          <i class="ti ti-plus"></i> Log Workout
+        </a>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div *ngIf="loadingDashboard" class="loading-grid">
+      <div class="skeleton" *ngFor="let i of [1,2,3,4]"></div>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error" class="alert alert-error">
+      <i class="ti ti-alert-circle"></i> {{ error }}
+    </div>
+
+    <ng-container *ngIf="!loadingDashboard && dashboard">
+
+      <!-- Stat cards -->
+      <div class="stats-grid">
+        <div class="stat-card animate-in" style="--delay:0.05s">
+          <div class="stat-icon blue"><i class="ti ti-barbell"></i></div>
+          <div class="stat-label">Total Workouts</div>
+          <div class="stat-value">{{ dashboard.totalWorkouts }}</div>
+          <div class="stat-sub">sessions logged</div>
+        </div>
+        <div class="stat-card animate-in" style="--delay:0.1s">
+          <div class="stat-icon green"><i class="ti ti-flame"></i></div>
+          <div class="stat-label">Training Streak</div>
+          <div class="stat-value">{{ dashboard.trainingStreakDays }}</div>
+          <div class="stat-sub">consecutive days</div>
+        </div>
+        <div class="stat-card animate-in" style="--delay:0.15s">
+          <div class="stat-icon orange"><i class="ti ti-weight"></i></div>
+          <div class="stat-label">Total Volume</div>
+          <div class="stat-value">{{ formatVolume(dashboard.totalVolumeAllTime) }}</div>
+          <div class="stat-sub">kg lifted all-time</div>
+        </div>
+        <div class="stat-card animate-in" style="--delay:0.2s">
+          <div class="stat-icon red">
+            <i class="ti ti-activity"></i>
+          </div>
+          <div class="stat-label">Body Weight</div>
+          <div class="stat-value">
+            {{ dashboard.currentWeight ? dashboard.currentWeight + ' kg' : '—' }}
+          </div>
+          <div class="stat-sub" *ngIf="dashboard.currentBMI">
+            BMI {{ dashboard.currentBMI }}
+            <span class="badge" [ngClass]="getBmiCategory(dashboard.currentBMI).class">
+              {{ getBmiCategory(dashboard.currentBMI).label }}
+            </span>
+          </div>
+          <div class="stat-sub" *ngIf="!dashboard.currentBMI">
+            <a routerLink="/body-progress">Log your weight</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main content grid -->
+      <div class="dash-grid">
+
+        <!-- Personal records -->
+        <div class="card animate-in" style="--delay:0.25s">
+          <div class="section-header">
+            <h3><i class="ti ti-trophy"></i> Personal Records</h3>
+            <a routerLink="/history" class="btn btn-sm btn-secondary">View all</a>
+          </div>
+          <div *ngIf="dashboard.topPersonalRecords.length === 0" class="empty-state">
+            <i class="ti ti-trophy"></i>
+            <h3>No records yet</h3>
+            <p>Log your first workout to set personal records.</p>
+          </div>
+          <div class="pr-list" *ngIf="dashboard.topPersonalRecords.length > 0">
+            <div class="pr-item" *ngFor="let pr of dashboard.topPersonalRecords; let i = index">
+              <div class="pr-rank" [class.gold]="i===0" [class.silver]="i===1" [class.bronze]="i===2">
+                {{ i + 1 }}
+              </div>
+              <div class="pr-info">
+                <div class="pr-name">{{ pr.exerciseName }}</div>
+                <div class="pr-date">{{ pr.date | date:'MMM d, y' }}</div>
+              </div>
+              <div class="pr-weight">
+                <span class="pr-kg">{{ pr.weight }} kg</span>
+                <span class="pr-reps">× {{ pr.reps }} reps</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Muscle group breakdown -->
+        <div class="card animate-in" style="--delay:0.3s">
+          <div class="section-header">
+            <h3><i class="ti ti-chart-donut"></i> Muscle Groups</h3>
+          </div>
+          <div *ngIf="dashboard.muscleGroupBreakdown.length === 0" class="empty-state">
+            <i class="ti ti-chart-donut"></i>
+            <h3>No data yet</h3>
+            <p>Start logging workouts to see muscle group breakdown.</p>
+          </div>
+          <div class="muscle-list" *ngIf="dashboard.muscleGroupBreakdown.length > 0">
+            <div class="muscle-item" *ngFor="let mg of dashboard.muscleGroupBreakdown">
+              <div class="muscle-icon">
+                <i class="ti" [ngClass]="getCategoryIcon(mg.category)"></i>
+              </div>
+              <div class="muscle-info">
+                <div class="muscle-name">{{ mg.category }}</div>
+                <div class="muscle-bar-wrap">
+                  <div class="muscle-bar">
+                    <div class="muscle-bar-fill"
+                      [style.width.%]="getVolumePercent(mg.totalVolume)">
+                    </div>
+                  </div>
+                  <span class="muscle-vol">{{ formatVolume(mg.totalVolume) }} kg</span>
+                </div>
+              </div>
+              <div class="muscle-freq">
+                {{ mg.trainingFrequencyPerWeek }}×/wk
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Insight -->
+        <div class="card ai-card animate-in" style="--delay:0.35s">
+          <div class="ai-card-header">
+            <div class="ai-icon"><i class="ti ti-robot"></i></div>
+            <div>
+              <h3>AI Fitness Coach</h3>
+              <p>Powered by LLaMA 3.3</p>
+            </div>
+          </div>
+
+          <div *ngIf="!aiInsight && !loadingAi" class="ai-prompt">
+            <p>Get personalized insights based on your training data. Your AI coach analyzes your workouts, strength progression, and consistency.</p>
+            <button class="btn btn-primary" (click)="loadAiInsight()">
+              <i class="ti ti-sparkles"></i> Generate Insight
+            </button>
+          </div>
+
+          <div *ngIf="loadingAi" class="ai-loading">
+            <div class="ai-dots">
+              <span></span><span></span><span></span>
+            </div>
+            <p>Analyzing your training data...</p>
+          </div>
+
+          <div *ngIf="aiInsight" class="ai-result">
+            <p class="ai-text">{{ aiInsight.insight }}</p>
+            <div class="ai-footer">
+              <span class="ai-time">
+                <i class="ti ti-clock"></i>
+                Generated {{ aiInsight.generatedAt | date:'short' }}
+              </span>
+              <button class="btn btn-sm btn-secondary" (click)="loadAiInsight()">
+                <i class="ti ti-refresh"></i> Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="card animate-in" style="--delay:0.4s">
+          <h3 style="margin-bottom:1rem;">Quick Actions</h3>
+          <div class="quick-actions">
+            <a routerLink="/log-workout" class="quick-action">
+              <div class="qa-icon blue"><i class="ti ti-plus"></i></div>
+              <span>Log Workout</span>
+            </a>
+            <a routerLink="/exercises" class="quick-action">
+              <div class="qa-icon green"><i class="ti ti-books"></i></div>
+              <span>Exercise Library</span>
+            </a>
+            <a routerLink="/body-progress" class="quick-action">
+              <div class="qa-icon orange"><i class="ti ti-scale"></i></div>
+              <span>Log Weight</span>
+            </a>
+            <a routerLink="/planner" class="quick-action">
+              <div class="qa-icon red"><i class="ti ti-calendar"></i></div>
+              <span>Weekly Plan</span>
+            </a>
+            <a routerLink="/history" class="quick-action">
+              <div class="qa-icon blue"><i class="ti ti-history"></i></div>
+              <span>History</span>
+            </a>
+            <a routerLink="/profile" class="quick-action">
+              <div class="qa-icon green"><i class="ti ti-user"></i></div>
+              <span>Profile</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
+
+    <!-- Empty state — no workouts yet -->
+    <div *ngIf="!loadingDashboard && dashboard && dashboard.totalWorkouts === 0" class="welcome-banner animate-in">
+      <div class="welcome-content">
+        <div class="welcome-emoji">🏋️</div>
+        <h2>Welcome to Apex Analytics!</h2>
+        <p>You're all set. Start by logging your first workout or browsing the exercise library.</p>
+        <div class="welcome-actions">
+          <a routerLink="/log-workout" class="btn btn-primary btn-lg">
+            <i class="ti ti-plus"></i> Log First Workout
+          </a>
+          <a routerLink="/exercises" class="btn btn-secondary btn-lg">
+            <i class="ti ti-books"></i> Browse Exercises
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

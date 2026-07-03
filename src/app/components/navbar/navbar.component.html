@@ -1,0 +1,78 @@
+<!-- Desktop navbar -->
+<nav class="navbar hide-mobile">
+  <div class="nav-inner">
+    <a class="nav-brand" routerLink="/dashboard">
+      <span class="brand-icon"><i class="ti ti-chart-bar"></i></span>
+      <span class="brand-text">Apex Analytics</span>
+    </a>
+
+    <div class="nav-links">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+        <i class="ti ti-home"></i> Dashboard
+      </a>
+      <a routerLink="/exercises" routerLinkActive="active" class="nav-link">
+        <i class="ti ti-books"></i> Exercises
+      </a>
+      <a routerLink="/log-workout" routerLinkActive="active" class="nav-link">
+        <i class="ti ti-plus"></i> Log Workout
+      </a>
+      <a routerLink="/history" routerLinkActive="active" class="nav-link">
+        <i class="ti ti-history"></i> History
+      </a>
+      <a routerLink="/body-progress" routerLinkActive="active" class="nav-link">
+        <i class="ti ti-activity"></i> Body
+      </a>
+      <a routerLink="/planner" routerLinkActive="active" class="nav-link">
+        <i class="ti ti-calendar"></i> Planner
+      </a>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn-icon" (click)="toggleTheme()" [title]="isDark ? 'Light mode' : 'Dark mode'">
+        <i class="ti" [class.ti-sun]="isDark" [class.ti-moon]="!isDark"></i>
+      </button>
+      <a routerLink="/profile" class="nav-avatar" routerLinkActive="active">
+        <i class="ti ti-user"></i>
+      </a>
+      <button class="btn btn-sm btn-secondary" (click)="authService.logout()">
+        <i class="ti ti-logout"></i> Logout
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile top bar -->
+<nav class="mobile-topbar show-mobile">
+  <a class="nav-brand" routerLink="/dashboard">
+    <span class="brand-icon"><i class="ti ti-chart-bar"></i></span>
+    <span class="brand-text">Apex Analytics</span>
+  </a>
+  <div style="display:flex;gap:8px;">
+    <button class="btn-icon" (click)="toggleTheme()">
+      <i class="ti" [class.ti-sun]="isDark" [class.ti-moon]="!isDark"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile bottom navigation -->
+<nav class="mobile-bottom-nav show-mobile">
+  <a routerLink="/dashboard" routerLinkActive="active" class="bottom-nav-item">
+    <i class="ti ti-home"></i>
+    <span>Home</span>
+  </a>
+  <a routerLink="/exercises" routerLinkActive="active" class="bottom-nav-item">
+    <i class="ti ti-books"></i>
+    <span>Exercises</span>
+  </a>
+  <a routerLink="/log-workout" class="bottom-nav-fab">
+    <i class="ti ti-plus"></i>
+  </a>
+  <a routerLink="/history" routerLinkActive="active" class="bottom-nav-item">
+    <i class="ti ti-history"></i>
+    <span>History</span>
+  </a>
+  <a routerLink="/profile" routerLinkActive="active" class="bottom-nav-item">
+    <i class="ti ti-user"></i>
+    <span>Profile</span>
+  </a>
+</nav>

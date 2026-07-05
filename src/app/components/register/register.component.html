@@ -2,10 +2,13 @@
   <div class="auth-left">
     <div class="auth-left-content">
       <div class="auth-logo">
-        <i class="ti ti-chart-bar"></i>
+        <img src="logo.png" alt="Apex Analytics" class="auth-logo-img" />
       </div>
       <h1>Start your fitness journey today.</h1>
-      <p>Join Apex Analytics and get access to powerful workout tracking, body progress monitoring, and AI fitness coaching.</p>
+      <p>
+        Join Apex Analytics and get access to powerful workout tracking, body progress monitoring,
+        and AI fitness coaching.
+      </p>
       <div class="auth-features">
         <div class="auth-feature">
           <i class="ti ti-database"></i>
@@ -52,7 +55,7 @@
             [(ngModel)]="username"
             placeholder="johndoe"
             autocomplete="username"
-          >
+          />
         </div>
       </div>
 
@@ -66,7 +69,7 @@
             [(ngModel)]="email"
             placeholder="you@example.com"
             autocomplete="email"
-          >
+          />
         </div>
       </div>
 
@@ -81,7 +84,7 @@
             placeholder="Min. 6 characters"
             autocomplete="new-password"
             (keyup.enter)="onSubmit()"
-          >
+          />
           <button class="input-toggle" type="button" (click)="showPassword = !showPassword">
             <i class="ti" [class.ti-eye]="!showPassword" [class.ti-eye-off]="showPassword"></i>
           </button>
@@ -97,9 +100,7 @@
         <span>Already have an account?</span>
       </div>
 
-      <a routerLink="/login" class="btn btn-secondary btn-full">
-        Sign in instead
-      </a>
+      <a routerLink="/login" class="btn btn-secondary btn-full"> Sign in instead </a>
     </div>
   </div>
 </div>

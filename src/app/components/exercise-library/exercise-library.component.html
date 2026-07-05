@@ -1,1 +1,192 @@
-<p>exercise-library works!</p>
+<div class="page">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>Exercise Library</h1>
+        <p>{{ filteredCount }} exercises across {{ categories.length }} muscle groups</p>
+      </div>
+    </div>
+
+    <!-- Search + filters -->
+    <div class="filters-bar animate-in" style="--delay:0.05s">
+      <div class="search-wrap">
+        <i class="ti ti-search search-icon"></i>
+        <input
+          class="form-input search-input"
+          type="text"
+          placeholder="Search exercises or muscles..."
+          [(ngModel)]="searchQuery"
+          (input)="onSearch()"
+        >
+        <button *ngIf="searchQuery" class="search-clear" (click)="searchQuery=''; loadExercises()">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+
+      <!-- Category chips -->
+      <div class="filter-chips">
+        <button
+          class="chip"
+          [class.active]="selectedCategory === ''"
+          (click)="selectCategory('')">
+          All
+        </button>
+        <button
+          *ngFor="let cat of categories"
+          class="chip"
+          [class.active]="selectedCategory === cat.name"
+          (click)="selectCategory(cat.name)">
+          <i class="ti" [ngClass]="getCategoryIcon(cat.name)"></i>
+          {{ cat.name }}
+        </button>
+      </div>
+
+      <!-- Difficulty filter -->
+      <div class="filter-chips">
+        <button class="chip chip-sm" [class.active]="selectedDifficulty === ''" (click)="selectDifficulty('')">All levels</button>
+        <button class="chip chip-sm chip-green" [class.active]="selectedDifficulty === 'Beginner'" (click)="selectDifficulty('Beginner')">Beginner</button>
+        <button class="chip chip-sm chip-orange" [class.active]="selectedDifficulty === 'Intermediate'" (click)="selectDifficulty('Intermediate')">Intermediate</button>
+        <button class="chip chip-sm chip-red" [class.active]="selectedDifficulty === 'Advanced'" (click)="selectDifficulty('Advanced')">Advanced</button>
+      </div>
+    </div>
+
+    <!-- Loading skeletons -->
+    <div *ngIf="loading" class="exercise-grid">
+      <div class="skeleton ex-skeleton" *ngFor="let i of [1,2,3,4,5,6,7,8]"></div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!loading && exercises.length === 0" class="empty-state">
+      <i class="ti ti-search"></i>
+      <h3>No exercises found</h3>
+      <p>Try adjusting your search or filters.</p>
+    </div>
+
+    <!-- Exercise grid -->
+    <div *ngIf="!loading && exercises.length > 0" class="exercise-grid">
+      <div
+        *ngFor="let ex of exercises; let i = index"
+        class="exercise-card animate-in"
+        [style]="'--delay:' + (i * 0.03) + 's'"
+        (click)="openExercise(ex)">
+
+        <div class="ex-card-top">
+          <div class="ex-icon">
+            <i class="ti" [ngClass]="getCategoryIcon(ex.category.name)"></i>
+          </div>
+          <div class="ex-badges">
+            <span class="badge badge-blue">{{ ex.category.name }}</span>
+            <span class="badge" [ngClass]="getDifficultyClass(ex.difficulty)">{{ ex.difficulty }}</span>
+          </div>
+        </div>
+
+        <div class="ex-card-body">
+          <h4 class="ex-name">{{ ex.name }}</h4>
+          <p class="ex-muscles">{{ ex.primaryMuscles }}</p>
+        </div>
+
+        <div class="ex-card-footer">
+          <span class="ex-equipment">
+            <i class="ti" [ngClass]="getEquipmentIcon(ex.equipment)"></i>
+            {{ ex.equipment }}
+          </span>
+          <i class="ti ti-chevron-right ex-arrow"></i>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Exercise detail modal -->
+<div *ngIf="selectedExercise" class="modal-overlay" (click)="closeExercise()">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <div class="modal-icon">
+          <i class="ti" [ngClass]="getCategoryIcon(selectedExercise.category.name)"></i>
+        </div>
+        <div>
+          <h2>{{ selectedExercise.name }}</h2>
+          <div class="modal-badges">
+            <span class="badge badge-blue">{{ selectedExercise.category.name }}</span>
+            <span class="badge" [ngClass]="getDifficultyClass(selectedExercise.difficulty)">{{ selectedExercise.difficulty }}</span>
+          </div>
+        </div>
+      </div>
+      <button class="btn-icon modal-close" (click)="closeExercise()">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- Equipment + muscles -->
+      <div class="modal-meta">
+        <div class="meta-item">
+          <i class="ti ti-barbell"></i>
+          <div>
+            <div class="meta-label">Equipment</div>
+            <div class="meta-value">{{ selectedExercise.equipment }}</div>
+          </div>
+        </div>
+        <div class="meta-item">
+          <i class="ti ti-heart"></i>
+          <div>
+            <div class="meta-label">Primary muscles</div>
+            <div class="meta-value">{{ selectedExercise.primaryMuscles }}</div>
+          </div>
+        </div>
+        <div class="meta-item" *ngIf="selectedExercise.secondaryMuscles">
+          <i class="ti ti-heart-plus"></i>
+          <div>
+            <div class="meta-label">Secondary muscles</div>
+            <div class="meta-value">{{ selectedExercise.secondaryMuscles }}</div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- Description -->
+      <div class="modal-section">
+        <h4><i class="ti ti-info-circle"></i> Description</h4>
+        <p>{{ selectedExercise.description }}</p>
+      </div>
+
+      <!-- Instructions -->
+      <div class="modal-section">
+        <h4><i class="ti ti-list-numbers"></i> How to perform</h4>
+        <ol class="instruction-list">
+          <li *ngFor="let step of getInstructions(selectedExercise.instructions)">
+            {{ step.trim() }}
+          </li>
+        </ol>
+      </div>
+
+      <!-- Two columns: benefits + mistakes -->
+      <div class="modal-two-col">
+        <div class="modal-section">
+          <h4><i class="ti ti-check"></i> Benefits</h4>
+          <ul class="bullet-list">
+            <li *ngFor="let b of getInstructions(selectedExercise.benefits)">
+              {{ b.trim() }}
+            </li>
+          </ul>
+        </div>
+        <div class="modal-section">
+          <h4><i class="ti ti-alert-triangle"></i> Common mistakes</h4>
+          <ul class="bullet-list mistakes">
+            <li *ngFor="let m of getInstructions(selectedExercise.commonMistakes)">
+              {{ m.trim() }}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

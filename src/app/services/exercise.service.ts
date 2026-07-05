@@ -20,24 +20,27 @@ export interface Exercise {
   instructions: string;
   commonMistakes: string;
   benefits: string;
-  category?: ExerciseCategory;
+  category: { id: number; name: string; };
 }
 
 @Injectable({ providedIn: 'root' })
 export class ExerciseService {
   private apiUrl = `${environment.apiUrl}`;
-
   constructor(private http: HttpClient) {}
 
-  getExercises(): Observable<Exercise[]> {
-    return this.http.get<Exercise[]>(`${this.apiUrl}/exercise`);
-  }
-
-  getExerciseById(id: number): Observable<Exercise> {
-    return this.http.get<Exercise>(`${this.apiUrl}/exercise/${id}`);
+  getExercises(category?: string, difficulty?: string, search?: string): Observable<Exercise[]> {
+    let params: any = {};
+    if (category) params['category'] = category;
+    if (difficulty) params['difficulty'] = difficulty;
+    if (search) params['search'] = search;
+    return this.http.get<Exercise[]>(`${this.apiUrl}/exercise`, { params });
   }
 
   getCategories(): Observable<ExerciseCategory[]> {
     return this.http.get<ExerciseCategory[]>(`${this.apiUrl}/exercise/categories`);
+  }
+
+  getExerciseById(id: number): Observable<Exercise> {
+    return this.http.get<Exercise>(`${this.apiUrl}/exercise/${id}`);
   }
 }

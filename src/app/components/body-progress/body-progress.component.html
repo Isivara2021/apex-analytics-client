@@ -1,1 +1,280 @@
-<p>body-progress works!</p>
+<div class="page">
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header body-header">
+      <div>
+        <h1>Body Progress</h1>
+        <p>Track your weight, BMI and measurements over time.</p>
+      </div>
+      <button class="btn btn-primary" (click)="showForm = !showForm">
+        <i class="ti" [class.ti-plus]="!showForm" [class.ti-x]="showForm"></i>
+        {{ showForm ? 'Cancel' : 'Log Measurement' }}
+      </button>
+    </div>
+
+    <!-- Success -->
+    <div *ngIf="success" class="alert alert-success animate-in">
+      <i class="ti ti-circle-check"></i> {{ success }}
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error" class="alert alert-error animate-in">
+      <i class="ti ti-alert-circle"></i> {{ error }}
+    </div>
+
+    <!-- Log form -->
+    <div *ngIf="showForm" class="card log-form animate-in" style="--delay: 0.05s">
+      <h3 style="margin-bottom: 1.5rem"><i class="ti ti-scale"></i> New Measurement</h3>
+
+      <div class="form-row-3">
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input class="form-input" type="date" [(ngModel)]="date" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Weight (kg) *</label>
+          <input
+            class="form-input"
+            type="number"
+            [(ngModel)]="weight"
+            placeholder="78.5"
+            step="0.1"
+            min="0"
+          />
+        </div>
+      </div>
+
+      <div class="measurements-section">
+        <h4 class="measurements-title">
+          <i class="ti ti-ruler"></i> Body Measurements
+          <span class="optional-tag">optional</span>
+        </h4>
+        <div class="measurements-grid">
+          <div class="form-group">
+            <label class="form-label">Chest (cm)</label>
+            <input
+              class="form-input"
+              type="number"
+              [(ngModel)]="chest"
+              placeholder="100"
+              step="0.5"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Waist (cm)</label>
+            <input
+              class="form-input"
+              type="number"
+              [(ngModel)]="waist"
+              placeholder="85"
+              step="0.5"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Arms (cm)</label>
+            <input
+              class="form-input"
+              type="number"
+              [(ngModel)]="arms"
+              placeholder="35"
+              step="0.5"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Legs (cm)</label>
+            <input
+              class="form-input"
+              type="number"
+              [(ngModel)]="legs"
+              placeholder="55"
+              step="0.5"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Shoulders (cm)</label>
+            <input
+              class="form-input"
+              type="number"
+              [(ngModel)]="shoulders"
+              placeholder="115"
+              step="0.5"
+            />
+          </div>
+        </div>
+      </div>
+
+      <button
+        class="btn btn-primary btn-lg"
+        style="width: 100%"
+        (click)="submitRecord()"
+        [disabled]="submitting"
+      >
+        <span class="spinner" *ngIf="submitting"></span>
+        <span *ngIf="!submitting"><i class="ti ti-device-floppy"></i> Save Measurement</span>
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="stats-grid">
+      <div class="skeleton" style="height: 120px" *ngFor="let i of [1, 2, 3, 4]"></div>
+    </div>
+
+    <ng-container *ngIf="!loading && summary">
+      <!-- Empty state -->
+      <div *ngIf="summary.totalRecords === 0" class="empty-state animate-in">
+        <i class="ti ti-scale"></i>
+        <h3>No measurements yet</h3>
+        <p>Start logging your body weight to track your progress over time.</p>
+        <button class="btn btn-primary" style="margin-top: 1rem" (click)="showForm = true">
+          <i class="ti ti-plus"></i> Log First Measurement
+        </button>
+      </div>
+
+      <ng-container *ngIf="summary.totalRecords > 0">
+        <!-- Summary stats -->
+        <div class="stats-grid animate-in" style="--delay: 0.05s">
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="ti ti-weight"></i></div>
+            <div class="stat-label">Current Weight</div>
+            <div class="stat-value">{{ summary.currentWeight }} kg</div>
+            <div class="stat-sub">latest measurement</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="ti ti-activity"></i></div>
+            <div class="stat-label">Current BMI</div>
+            <div class="stat-value">{{ summary.currentBMI ?? '—' }}</div>
+            <div class="stat-sub" *ngIf="summary.currentBMI">
+              <span class="badge" [ngClass]="getBmiCategory(summary.currentBMI).class">
+                {{ getBmiCategory(summary.currentBMI).label }}
+              </span>
+            </div>
+            <div class="stat-sub" *ngIf="!summary.currentBMI">
+              <a routerLink="/profile" style="color: var(--primary-light); font-size: 12px">
+                <i class="ti ti-arrow-right"></i> Set height in profile
+              </a>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" [ngClass]="summary.weightChange >= 0 ? 'orange' : 'green'">
+              <i
+                class="ti"
+                [class.ti-trending-up]="summary.weightChange >= 0"
+                [class.ti-trending-down]="summary.weightChange < 0"
+              ></i>
+            </div>
+            <div class="stat-label">Total Change</div>
+            <div class="stat-value" [ngClass]="getWeightChangeClass()">
+              {{ summary.weightChange >= 0 ? '+' : '' }}{{ summary.weightChange }} kg
+            </div>
+            <div class="stat-sub">since first record</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="ti ti-calendar"></i></div>
+            <div class="stat-label">Records</div>
+            <div class="stat-value">{{ summary.totalRecords }}</div>
+            <div class="stat-sub">measurements logged</div>
+          </div>
+        </div>
+
+        <!-- Weight chart -->
+        <div class="card animate-in" style="--delay: 0.1s" *ngIf="summary.history.length >= 2">
+          <div class="section-header" style="margin-bottom: 1.25rem">
+            <h3><i class="ti ti-chart-line"></i> Weight Over Time</h3>
+          </div>
+          <div class="chart-wrap">
+            <svg class="weight-chart" viewBox="0 0 600 140" preserveAspectRatio="none">
+              <!-- Grid lines -->
+              <line x1="0" y1="35" x2="600" y2="35" stroke="var(--border)" stroke-width="1" />
+              <line x1="0" y1="70" x2="600" y2="70" stroke="var(--border)" stroke-width="1" />
+              <line x1="0" y1="105" x2="600" y2="105" stroke="var(--border)" stroke-width="1" />
+              <!-- Area fill -->
+              <defs>
+                <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#3949ab" stop-opacity="0.2" />
+                  <stop offset="100%" stop-color="#3949ab" stop-opacity="0" />
+                </linearGradient>
+              </defs>
+              <polygon [attr.points]="getChartPoints() + ' 600,140 0,140'" fill="url(#chartGrad)" />
+              <!-- Line -->
+              <polyline
+                [attr.points]="getChartPoints()"
+                fill="none"
+                stroke="#3949ab"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <!-- Dots -->
+              <circle
+                *ngFor="let dot of getChartDots()"
+                [attr.cx]="dot.x"
+                [attr.cy]="dot.y"
+                r="4"
+                fill="#3949ab"
+                stroke="var(--surface)"
+                stroke-width="2"
+              >
+                <title>{{ dot.weight }}kg — {{ dot.date | date: 'mediumDate' }}</title>
+              </circle>
+            </svg>
+          </div>
+        </div>
+
+        <!-- History table -->
+        <div class="card animate-in" style="--delay: 0.15s">
+          <div class="section-header">
+            <h3><i class="ti ti-history"></i> Measurement History</h3>
+          </div>
+
+          <div class="history-table">
+            <div class="table-header">
+              <span>Date</span>
+              <span>Weight</span>
+              <span>BMI</span>
+              <span class="hide-mobile">Measurements</span>
+              <span></span>
+            </div>
+
+            <div
+              *ngFor="let record of summary.history | slice: 0 : 20; let i = index"
+              class="table-row animate-in"
+              [style]="'--delay:' + i * 0.02 + 's'"
+            >
+              <span class="table-date">{{ record.date | date: 'MMM d, y' }}</span>
+              <span class="table-weight">{{ record.weight }} kg</span>
+              <span>
+                <span *ngIf="record.bmi" class="badge" [ngClass]="getBmiCategory(record.bmi).class">
+                  {{ record.bmi }}
+                </span>
+                <span *ngIf="!record.bmi" class="text-muted">—</span>
+              </span>
+              <span class="hide-mobile">
+                <span *ngIf="hasAnyMeasurement(record)" class="measurements-tags">
+                  <span *ngIf="record.chest" class="meas-tag">Chest {{ record.chest }}</span>
+                  <span *ngIf="record.waist" class="meas-tag">Waist {{ record.waist }}</span>
+                  <span *ngIf="record.arms" class="meas-tag">Arms {{ record.arms }}</span>
+                  <span *ngIf="record.legs" class="meas-tag">Legs {{ record.legs }}</span>
+                </span>
+                <span *ngIf="!hasAnyMeasurement(record)" class="text-muted">—</span>
+              </span>
+              <span>
+                <button
+                  class="btn-icon btn-sm"
+                  style="color: var(--danger)"
+                  (click)="deleteRecord(record.id)"
+                  [disabled]="deletingId === record.id"
+                >
+                  <i
+                    class="ti"
+                    [class.ti-trash]="deletingId !== record.id"
+                    [class.ti-loader-2]="deletingId === record.id"
+                  ></i>
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+  </div>
+</div>

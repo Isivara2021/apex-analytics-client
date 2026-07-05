@@ -1,0 +1,412 @@
+/* ── Header ── */
+.planner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* ── Create form ── */
+.create-form { margin-bottom: 1.5rem; }
+.create-form h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+}
+.create-form h3 i { color: var(--primary-light); }
+
+/* ── Templates ── */
+.templates-section { margin-bottom: 1.5rem; }
+
+.template-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.template-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1.5px solid var(--primary-light);
+  background: transparent;
+  color: var(--primary-light);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+}
+
+.template-chip:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+/* ── 7-day grid ── */
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.day-card {
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 120px;
+  transition: border-color 0.2s;
+}
+
+.day-card:focus-within { border-color: var(--primary-light); }
+.day-card.rest-day { opacity: 0.7; }
+
+.day-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.day-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.day-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  flex-shrink: 0;
+}
+
+.day-dot.rest { background: var(--text-muted); }
+
+.day-label-input {
+  width: 100%;
+  padding: 4px 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  outline: none;
+}
+
+.day-label-input:focus { border-color: var(--primary-light); }
+
+/* ── Day exercises ── */
+.day-exercises {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.day-exercise-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface);
+  border-radius: 4px;
+  padding: 4px 6px;
+}
+
+.day-ex-name {
+  flex: 1;
+  font-size: 10px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.day-ex-targets {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.target-input {
+  width: 28px;
+  padding: 2px 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 11px;
+  text-align: center;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  outline: none;
+}
+
+.target-sep { font-size: 11px; color: var(--text-muted); }
+
+/* ── Add to day button ── */
+.add-to-day-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+  width: 100%;
+  justify-content: center;
+}
+
+.add-to-day-btn:hover { border-color: var(--primary-light); color: var(--primary-light); }
+
+/* ── Day picker ── */
+.day-picker {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: var(--shadow-md);
+}
+
+.day-picker-list {
+  max-height: 160px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.day-picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-sans);
+  transition: background 0.15s;
+}
+
+.day-picker-item:hover { background: var(--surface-2); }
+
+.picker-cat {
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  padding: 1px 6px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+/* ── Plans list ── */
+.plans-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Plan card ── */
+.plan-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.plan-card:hover { box-shadow: var(--shadow-md); }
+.plan-card.expanded { border-color: var(--primary-light); }
+
+.plan-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.plan-header:hover { background: var(--surface-2); }
+
+.plan-icon {
+  width: 44px; height: 44px;
+  background: #e8eaf6;
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  color: var(--primary-light);
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .plan-icon { background: rgba(92,107,192,0.15); }
+
+.plan-info { flex: 1; }
+.plan-info h4 { font-size: 16px; color: var(--text-primary); margin-bottom: 4px; }
+
+.plan-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.plan-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.plan-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.expand-icon {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted);
+  font-size: 18px;
+}
+
+/* ── Plan details ── */
+.plan-details {
+  padding: 0 1.25rem 1.25rem;
+  animation: fadeDown 0.25s ease;
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Plan week grid ── */
+.plan-week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.plan-day-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.plan-day-card.rest { opacity: 0.6; }
+
+.plan-day-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.plan-day-icon {
+  width: 28px; height: 28px;
+  background: #e8eaf6;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  color: var(--primary-light);
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .plan-day-icon { background: rgba(92,107,192,0.15); }
+
+.plan-day-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.plan-day-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.plan-day-exercises {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.plan-day-ex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  background: var(--surface);
+  border-radius: 4px;
+}
+
+.plan-day-ex-name {
+  font-size: 10px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.plan-day-ex-target {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--primary-light);
+  flex-shrink: 0;
+}
+
+.rest-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+  justify-content: center;
+  padding: 8px 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .days-grid { grid-template-columns: repeat(4, 1fr); }
+  .plan-week-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .planner-header { flex-direction: column; }
+  .planner-header .btn { width: 100%; justify-content: center; }
+  .days-grid { grid-template-columns: repeat(2, 1fr); }
+  .plan-week-grid { grid-template-columns: repeat(2, 1fr); }
+  .page { padding-top: 56px; }
+}

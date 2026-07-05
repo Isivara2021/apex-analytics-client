@@ -1,0 +1,297 @@
+/* ── Profile grid ── */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* ── Avatar card ── */
+.avatar-card {
+  text-align: center;
+  position: sticky;
+  top: calc(var(--nav-height) + 1rem);
+}
+
+.avatar-circle {
+  width: 80px; height: 80px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 32px;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(26,35,126,0.3);
+}
+
+.avatar-card h3 {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.avatar-card > p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.member-since {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Fitness summary ── */
+.fitness-summary {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.fitness-summary-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fs-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  min-width: 80px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fs-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ── Right column ── */
+.profile-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Section titles ── */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.section-title i { color: var(--primary-light); }
+
+.section-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+/* ── Form layouts ── */
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.input-icon-wrap { position: relative; }
+
+.input-icon {
+  position: absolute;
+  left: 12px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.input-padded { padding-left: 40px; }
+
+/* ── Gender chips ── */
+.gender-chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gender-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+}
+
+.gender-chip:hover { border-color: var(--primary-light); color: var(--primary-light); }
+.gender-chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* ── Experience cards ── */
+.experience-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.experience-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+}
+
+.experience-card:hover { border-color: var(--primary-light); }
+.experience-card.active { border-color: var(--primary); background: #e8eaf6; }
+[data-theme="dark"] .experience-card.active { background: rgba(92,107,192,0.15); }
+
+.exp-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.exp-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ── Goal cards ── */
+.goal-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.goal-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 8px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.goal-card i { font-size: 24px; color: var(--text-muted); transition: color 0.2s; }
+.goal-card:hover { border-color: var(--primary-light); }
+.goal-card:hover i { color: var(--primary-light); }
+.goal-card.active { border-color: var(--primary); background: #e8eaf6; color: var(--primary); }
+.goal-card.active i { color: var(--primary); }
+[data-theme="dark"] .goal-card.active { background: rgba(92,107,192,0.15); }
+
+/* ── BMI preview ── */
+.bmi-preview {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: linear-gradient(135deg, #e8eaf6 0%, #e3f2fd 100%);
+  border: 1px solid rgba(63,81,181,0.15);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+[data-theme="dark"] .bmi-preview {
+  background: rgba(92,107,192,0.1);
+  border-color: rgba(92,107,192,0.2);
+}
+
+.bmi-preview-value {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.bmi-num {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+}
+
+.bmi-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bmi-preview-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bmi-preview-info p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .profile-grid { grid-template-columns: 260px 1fr; }
+  .goal-cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .profile-grid { grid-template-columns: 1fr; }
+  .avatar-card { position: static; }
+  .form-row-2 { grid-template-columns: 1fr; }
+  .form-row-3 { grid-template-columns: 1fr 1fr; }
+  .experience-cards { grid-template-columns: repeat(3, 1fr); }
+  .goal-cards { grid-template-columns: repeat(2, 1fr); }
+  .bmi-preview { flex-direction: column; text-align: center; }
+  .page { padding-top: 56px; }
+}

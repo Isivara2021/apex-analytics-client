@@ -1,1 +1,228 @@
-<p>log-workout works!</p>
+<div class="page">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>Log Workout</h1>
+        <p>Track your session step by step.</p>
+      </div>
+    </div>
+
+    <!-- Success state -->
+    <div *ngIf="success" class="success-banner animate-in">
+      <i class="ti ti-circle-check"></i>
+      <div>
+        <h3>Workout saved!</h3>
+        <p>Redirecting to your history...</p>
+      </div>
+    </div>
+
+    <ng-container *ngIf="!success">
+
+      <!-- Step indicators -->
+      <div class="steps-bar animate-in" style="--delay:0.05s">
+        <div class="step" [class.active]="currentStep >= 1" [class.done]="currentStep > 1">
+          <div class="step-circle">
+            <i class="ti ti-check" *ngIf="currentStep > 1"></i>
+            <span *ngIf="currentStep <= 1">1</span>
+          </div>
+          <span class="step-label">Session Details</span>
+        </div>
+        <div class="step-line" [class.done]="currentStep > 1"></div>
+        <div class="step" [class.active]="currentStep >= 2">
+          <div class="step-circle">
+            <span>2</span>
+          </div>
+          <span class="step-label">Exercises & Sets</span>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="error" class="alert alert-error animate-in">
+        <i class="ti ti-alert-circle"></i> {{ error }}
+      </div>
+
+      <!-- STEP 1: Session details -->
+      <div *ngIf="currentStep === 1" class="card animate-in" style="--delay:0.1s">
+        <h3 style="margin-bottom:1.5rem;">Session Details</h3>
+
+        <!-- Workout type chips -->
+        <div class="form-group">
+          <label class="form-label">Workout Type</label>
+          <div class="type-chips">
+            <button
+              *ngFor="let type of workoutTypes"
+              class="type-chip"
+              [class.active]="workoutType === type"
+              (click)="selectWorkoutType(type)">
+              {{ type }}
+            </button>
+          </div>
+          <input
+            class="form-input"
+            style="margin-top:8px;"
+            type="text"
+            [(ngModel)]="workoutType"
+            placeholder="Or type a custom workout name..."
+          >
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <div class="input-wrapper">
+              <i class="ti ti-calendar input-icon"></i>
+              <input class="form-input input-with-icon" type="date" [(ngModel)]="workoutDate">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Duration (minutes)</label>
+            <div class="input-wrapper">
+              <i class="ti ti-clock input-icon"></i>
+              <input class="form-input input-with-icon" type="number" [(ngModel)]="durationMinutes" min="1" max="300">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notes (optional)</label>
+          <textarea
+            class="form-input"
+            [(ngModel)]="notes"
+            placeholder="How did you feel? Any PRs?"
+            rows="3"
+            style="resize:vertical;"
+          ></textarea>
+        </div>
+
+        <button class="btn btn-primary btn-lg" style="width:100%;" (click)="goToStep2()">
+          Continue to Exercises <i class="ti ti-arrow-right"></i>
+        </button>
+      </div>
+
+      <!-- STEP 2: Exercises & Sets -->
+      <div *ngIf="currentStep === 2">
+
+        <!-- Volume summary bar -->
+        <div class="volume-bar animate-in" style="--delay:0.05s" *ngIf="exercises.length > 0">
+          <div class="volume-stat">
+            <span class="volume-label">Exercises</span>
+            <span class="volume-value">{{ exercises.length }}</span>
+          </div>
+          <div class="volume-stat">
+            <span class="volume-label">Total Sets</span>
+            <span class="volume-value">{{ exercises.reduce((s,e) => s + e.sets.length, 0) }}</span>
+          </div>
+          <div class="volume-stat">
+            <span class="volume-label">Total Volume</span>
+            <span class="volume-value">{{ getTotalVolume() | number:'1.0-0' }} kg</span>
+          </div>
+          <div class="volume-stat">
+            <span class="volume-label">Workout</span>
+            <span class="volume-value">{{ workoutType }}</span>
+          </div>
+        </div>
+
+        <!-- Exercise cards -->
+        <div *ngFor="let ex of exercises; let ei = index" class="exercise-entry card animate-in" [style]="'--delay:' + (ei * 0.05) + 's'">
+          <div class="ex-entry-header">
+            <div class="ex-entry-name">
+              <div class="ex-entry-icon">
+                <i class="ti ti-barbell"></i>
+              </div>
+              <div>
+                <h4>{{ ex.exerciseName }}</h4>
+                <span class="ex-entry-vol">{{ getExerciseVolume(ex) | number:'1.0-0' }} kg volume</span>
+              </div>
+            </div>
+            <button class="btn-icon" style="color:var(--danger)" (click)="removeExercise(ei)">
+              <i class="ti ti-trash"></i>
+            </button>
+          </div>
+
+          <!-- Sets table -->
+          <div class="sets-table">
+            <div class="sets-header">
+              <span>SET</span>
+              <span>WEIGHT (kg)</span>
+              <span>REPS</span>
+              <span>REST (s)</span>
+              <span></span>
+            </div>
+            <div *ngFor="let set of ex.sets; let si = index" class="set-row">
+              <div class="set-num">{{ set.setNumber }}</div>
+              <input class="set-input" type="number" [(ngModel)]="set.weight" min="0" step="0.5" placeholder="0">
+              <input class="set-input" type="number" [(ngModel)]="set.reps" min="1" placeholder="10">
+              <input class="set-input" type="number" [(ngModel)]="set.restSeconds" min="0" placeholder="90">
+              <button class="btn-icon btn-sm" (click)="removeSet(ei, si)" [disabled]="ex.sets.length <= 1">
+                <i class="ti ti-minus"></i>
+              </button>
+            </div>
+          </div>
+
+          <button class="btn btn-secondary btn-sm" style="margin-top:8px;" (click)="addSet(ei)">
+            <i class="ti ti-plus"></i> Add Set
+          </button>
+        </div>
+
+        <!-- Add exercise button -->
+        <button class="add-exercise-btn animate-in" (click)="toggleExercisePicker()">
+          <i class="ti ti-plus"></i>
+          <span>Add Exercise</span>
+        </button>
+
+        <!-- Exercise picker -->
+        <div *ngIf="showExercisePicker" class="exercise-picker card animate-in">
+          <div class="picker-search">
+            <i class="ti ti-search search-icon"></i>
+            <input
+              class="form-input"
+              style="padding-left:40px;"
+              type="text"
+              placeholder="Search exercises..."
+              [(ngModel)]="exerciseSearch"
+              (input)="searchExercises()"
+              autofocus
+            >
+          </div>
+          <div class="picker-list">
+            <div *ngIf="filteredExercises.length === 0" class="picker-empty">
+              No exercises found
+            </div>
+            <button
+              *ngFor="let ex of filteredExercises"
+              class="picker-item"
+              [class.selected]="exercises.some(e => e.exerciseId === ex.id)"
+              (click)="addExercise(ex)">
+              <div class="picker-item-info">
+                <span class="picker-item-name">{{ ex.name }}</span>
+                <span class="picker-item-meta">{{ ex.category.name }} · {{ ex.equipment }}</span>
+              </div>
+              <i class="ti ti-check" *ngIf="exercises.some(e => e.exerciseId === ex.id)"></i>
+              <i class="ti ti-plus" *ngIf="!exercises.some(e => e.exerciseId === ex.id)"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bottom actions -->
+        <div class="log-actions animate-in">
+          <button class="btn btn-secondary" (click)="currentStep = 1">
+            <i class="ti ti-arrow-left"></i> Back
+          </button>
+          <button
+            class="btn btn-primary btn-lg"
+            (click)="submitWorkout()"
+            [disabled]="submitting || exercises.length === 0">
+            <span class="spinner" *ngIf="submitting"></span>
+            <span *ngIf="!submitting">
+              <i class="ti ti-device-floppy"></i> Save Workout
+            </span>
+          </button>
+        </div>
+
+      </div>
+    </ng-container>
+
+  </div>
+</div>

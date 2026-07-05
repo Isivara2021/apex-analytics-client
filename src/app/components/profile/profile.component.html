@@ -1,1 +1,215 @@
-<p>profile works!</p>
+<div class="page">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>Profile</h1>
+        <p>Manage your account and fitness details.</p>
+      </div>
+    </div>
+
+    <div class="profile-grid">
+
+      <!-- Left column -->
+      <div class="profile-left">
+
+        <!-- Avatar card -->
+        <div class="card avatar-card animate-in" style="--delay:0.05s">
+          <div class="avatar-circle">
+            <span>{{ authService.getUsername().charAt(0).toUpperCase() }}</span>
+          </div>
+          <h3>{{ authService.getUsername() }}</h3>
+          <p>{{ userProfile?.email }}</p>
+          <div class="member-since" *ngIf="userProfile">
+            <i class="ti ti-calendar"></i>
+            Member since {{ userProfile.createdAt | date:'MMM y' }}
+          </div>
+
+          <!-- Fitness summary -->
+          <div *ngIf="fitnessProfile" class="fitness-summary">
+            <div class="fitness-summary-item">
+              <span class="fs-label">BMI</span>
+              <span class="fs-value">{{ fitnessProfile.bmi }}</span>
+              <span class="badge" [ngClass]="getBmiCategory(fitnessProfile.bmi).class">
+                {{ getBmiCategory(fitnessProfile.bmi).label }}
+              </span>
+            </div>
+            <div class="fitness-summary-item">
+              <span class="fs-label">Goal</span>
+              <span class="fs-value">{{ getGoalLabel(fitnessProfile.goal) }}</span>
+            </div>
+            <div class="fitness-summary-item">
+              <span class="fs-label">Experience</span>
+              <span class="fs-value">{{ getExperienceLabel(fitnessProfile.trainingExperience) }}</span>
+            </div>
+            <div class="fitness-summary-item">
+              <span class="fs-label">Height / Weight</span>
+              <span class="fs-value">{{ fitnessProfile.height }}cm / {{ fitnessProfile.weight }}kg</span>
+            </div>
+          </div>
+
+          <button class="btn btn-danger btn-full" style="margin-top:1.5rem;" (click)="logout()">
+            <i class="ti ti-logout"></i> Sign Out
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Right column -->
+      <div class="profile-right">
+
+        <!-- Account settings -->
+        <div class="card animate-in" style="--delay:0.1s">
+          <h3 class="section-title">
+            <i class="ti ti-user"></i> Account Settings
+          </h3>
+
+          <div *ngIf="successUser" class="alert alert-success">
+            <i class="ti ti-circle-check"></i> {{ successUser }}
+          </div>
+          <div *ngIf="errorUser" class="alert alert-error">
+            <i class="ti ti-alert-circle"></i> {{ errorUser }}
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Username</label>
+              <div class="input-icon-wrap">
+                <i class="ti ti-user input-icon"></i>
+                <input class="form-input input-padded" type="text" [(ngModel)]="username">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <div class="input-icon-wrap">
+                <i class="ti ti-mail input-icon"></i>
+                <input class="form-input input-padded" type="email" [(ngModel)]="email">
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" (click)="saveUserProfile()" [disabled]="savingUser">
+            <span class="spinner" *ngIf="savingUser"></span>
+            <span *ngIf="!savingUser"><i class="ti ti-device-floppy"></i> Save Changes</span>
+          </button>
+        </div>
+
+        <!-- Fitness profile -->
+        <div class="card animate-in" style="--delay:0.15s">
+          <h3 class="section-title">
+            <i class="ti ti-barbell"></i> Fitness Profile
+          </h3>
+          <p class="section-desc">This information is used to calculate your BMI and provide personalized insights.</p>
+
+          <div *ngIf="successFitness" class="alert alert-success">
+            <i class="ti ti-circle-check"></i> {{ successFitness }}
+          </div>
+          <div *ngIf="errorFitness" class="alert alert-error">
+            <i class="ti ti-alert-circle"></i> {{ errorFitness }}
+          </div>
+
+          <!-- Basic stats -->
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">Age</label>
+              <input class="form-input" type="number" [(ngModel)]="age" min="10" max="100" placeholder="28">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Height (cm)</label>
+              <input class="form-input" type="number" [(ngModel)]="height" min="100" max="250" placeholder="178" step="0.5">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Weight (kg)</label>
+              <input class="form-input" type="number" [(ngModel)]="weight" min="30" max="300" placeholder="78.5" step="0.5">
+            </div>
+          </div>
+
+          <!-- Gender -->
+          <div class="form-group">
+            <label class="form-label">Gender</label>
+            <div class="gender-chips">
+              <button
+                class="gender-chip"
+                [class.active]="gender === 'male'"
+                (click)="gender = 'male'">
+                <i class="ti ti-gender-male"></i> Male
+              </button>
+              <button
+                class="gender-chip"
+                [class.active]="gender === 'female'"
+                (click)="gender = 'female'">
+                <i class="ti ti-gender-female"></i> Female
+              </button>
+              <button
+                class="gender-chip"
+                [class.active]="gender === 'other'"
+                (click)="gender = 'other'">
+                <i class="ti ti-gender-bigender"></i> Other
+              </button>
+            </div>
+          </div>
+
+          <!-- Training experience -->
+          <div class="form-group">
+            <label class="form-label">Training Experience</label>
+            <div class="experience-cards">
+              <button
+                *ngFor="let level of EXPERIENCE_LEVELS"
+                class="experience-card"
+                [class.active]="trainingExperience === level.value"
+                (click)="trainingExperience = level.value">
+                <span class="exp-label">{{ level.label }}</span>
+                <span class="exp-desc">{{ level.desc }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Goal -->
+          <div class="form-group">
+            <label class="form-label">Fitness Goal</label>
+            <div class="goal-cards">
+              <button
+                *ngFor="let g of GOALS"
+                class="goal-card"
+                [class.active]="goal === g.value"
+                (click)="goal = g.value">
+                <i class="ti" [ngClass]="g.icon"></i>
+                <span>{{ g.label }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- BMI preview -->
+          <div *ngIf="height > 0 && weight > 0" class="bmi-preview">
+            <div class="bmi-preview-value">
+              <span class="bmi-num">{{ (weight / ((height/100) * (height/100))) | number:'1.1-1' }}</span>
+              <span class="bmi-label">BMI</span>
+            </div>
+            <div class="bmi-preview-info">
+              <ng-container *ngIf="(weight / ((height/100) * (height/100))) as bmi">
+                <span class="badge" [ngClass]="getBmiCategory(bmi).class">
+                  {{ getBmiCategory(bmi).label }}
+                </span>
+                <p>Based on {{ height }}cm height and {{ weight }}kg weight</p>
+              </ng-container>
+            </div>
+          </div>
+
+          <button
+            class="btn btn-primary"
+            style="width:100%;"
+            (click)="saveFitnessProfile()"
+            [disabled]="savingFitness">
+            <span class="spinner" *ngIf="savingFitness"></span>
+            <span *ngIf="!savingFitness">
+              <i class="ti ti-device-floppy"></i> Save Fitness Profile
+            </span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

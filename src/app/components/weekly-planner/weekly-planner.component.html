@@ -1,1 +1,219 @@
-<p>weekly-planner works!</p>
+<div class="page">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="page-header planner-header">
+      <div>
+        <h1>Weekly Planner</h1>
+        <p>Build structured training routines for your week.</p>
+      </div>
+      <button class="btn btn-primary" (click)="showCreateForm = !showCreateForm">
+        <i class="ti" [class.ti-plus]="!showCreateForm" [class.ti-x]="showCreateForm"></i>
+        {{ showCreateForm ? 'Cancel' : 'Create Plan' }}
+      </button>
+    </div>
+
+    <!-- Success -->
+    <div *ngIf="success" class="alert alert-success animate-in">
+      <i class="ti ti-circle-check"></i> {{ success }}
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error" class="alert alert-error animate-in">
+      <i class="ti ti-alert-circle"></i> {{ error }}
+    </div>
+
+    <!-- Create form -->
+    <div *ngIf="showCreateForm" class="create-form card animate-in" style="--delay:0.05s">
+      <h3 style="margin-bottom:1.5rem;">
+        <i class="ti ti-calendar-plus"></i> New Training Plan
+      </h3>
+
+      <!-- Plan name -->
+      <div class="form-group">
+        <label class="form-label">Plan Name</label>
+        <input class="form-input" type="text" [(ngModel)]="planName" placeholder="e.g. Push Pull Legs">
+      </div>
+
+      <!-- Quick templates -->
+      <div class="templates-section">
+        <p class="form-label" style="margin-bottom:8px;">Quick Templates</p>
+        <div class="template-chips">
+          <button
+            *ngFor="let t of QUICK_TEMPLATES"
+            class="template-chip"
+            (click)="applyTemplate(t)">
+            <i class="ti ti-bolt"></i> {{ t.name }}
+          </button>
+        </div>
+      </div>
+
+      <!-- 7-day grid -->
+      <div class="days-grid">
+        <div
+          *ngFor="let day of days; let di = index"
+          class="day-card"
+          [class.rest-day]="isRestDay(day)">
+
+          <!-- Day header -->
+          <div class="day-header">
+            <div class="day-name">
+              <span class="day-dot" [class.rest]="isRestDay(day)"></span>
+              {{ day.dayOfWeek }}
+            </div>
+            <input
+              class="day-label-input"
+              type="text"
+              [(ngModel)]="day.label"
+              placeholder="e.g. Chest Day"
+            >
+          </div>
+
+          <!-- Exercises in this day -->
+          <div class="day-exercises" *ngIf="day.exercises.length > 0">
+            <div *ngFor="let ex of day.exercises; let ei = index" class="day-exercise-row">
+              <span class="day-ex-name">{{ ex.exerciseName }}</span>
+              <div class="day-ex-targets">
+                <input class="target-input" type="number" [(ngModel)]="ex.targetSets" min="1" title="Sets">
+                <span class="target-sep">×</span>
+                <input class="target-input" type="number" [(ngModel)]="ex.targetReps" min="1" title="Reps">
+              </div>
+              <button class="btn-icon btn-sm" (click)="removeExerciseFromDay(di, ei)">
+                <i class="ti ti-x"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Add exercise to day -->
+          <button
+            class="add-to-day-btn"
+            (click)="openPickerForDay(di)"
+            *ngIf="!isRestDay(day) || day.label.toLowerCase() !== 'rest'">
+            <i class="ti ti-plus"></i> Add exercise
+          </button>
+
+          <!-- Inline exercise picker -->
+          <div *ngIf="showPickerForDay === di" class="day-picker">
+            <div style="position:relative;">
+              <i class="ti ti-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;"></i>
+              <input
+                class="form-input"
+                style="padding-left:36px;font-size:13px;"
+                type="text"
+                placeholder="Search..."
+                [(ngModel)]="pickerSearch"
+                (input)="searchPicker()">
+            </div>
+            <div class="day-picker-list">
+              <button
+                *ngFor="let ex of pickerFiltered | slice:0:8"
+                class="day-picker-item"
+                (click)="addExerciseToDay(di, ex)">
+                {{ ex.name }}
+                <span class="picker-cat">{{ ex.category.name }}</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <button
+        class="btn btn-primary btn-lg"
+        style="width:100%;margin-top:1.5rem;"
+        (click)="submitPlan()"
+        [disabled]="submitting">
+        <span class="spinner" *ngIf="submitting"></span>
+        <span *ngIf="!submitting">
+          <i class="ti ti-device-floppy"></i> Save Plan
+        </span>
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="plans-list">
+      <div class="skeleton" style="height:100px;" *ngFor="let i of [1,2]"></div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!loading && plans.length === 0 && !showCreateForm" class="empty-state animate-in">
+      <i class="ti ti-calendar"></i>
+      <h3>No training plans yet</h3>
+      <p>Create a structured weekly plan to stay consistent with your training.</p>
+      <button class="btn btn-primary" style="margin-top:1rem;" (click)="showCreateForm = true">
+        <i class="ti ti-plus"></i> Create First Plan
+      </button>
+    </div>
+
+    <!-- Plans list -->
+    <div *ngIf="!loading && plans.length > 0" class="plans-list">
+      <div
+        *ngFor="let plan of plans; let i = index"
+        class="plan-card animate-in"
+        [style]="'--delay:' + (i * 0.05) + 's'"
+        [class.expanded]="expandedPlan === plan.id">
+
+        <!-- Plan header -->
+        <div class="plan-header" (click)="togglePlan(plan.id)">
+          <div class="plan-icon">
+            <i class="ti ti-calendar"></i>
+          </div>
+          <div class="plan-info">
+            <h4>{{ plan.name }}</h4>
+            <div class="plan-meta">
+              <span><i class="ti ti-flame"></i> {{ getTrainingDays(plan) }} training days</span>
+              <span><i class="ti ti-barbell"></i> {{ getTotalExercises(plan) }} exercises</span>
+            </div>
+          </div>
+          <div class="plan-actions">
+            <button
+              class="btn-icon"
+              style="color:var(--danger)"
+              (click)="deletePlan(plan.id); $event.stopPropagation()"
+              [disabled]="deletingId === plan.id">
+              <i class="ti" [class.ti-trash]="deletingId !== plan.id" [class.ti-loader-2]="deletingId === plan.id"></i>
+            </button>
+            <div class="expand-icon">
+              <i class="ti" [class.ti-chevron-down]="expandedPlan !== plan.id" [class.ti-chevron-up]="expandedPlan === plan.id"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plan details -->
+        <div class="plan-details" *ngIf="expandedPlan === plan.id">
+          <div class="divider" style="margin:0 0 1rem;"></div>
+          <div class="plan-week-grid">
+            <div
+              *ngFor="let day of plan.days"
+              class="plan-day-card"
+              [class.rest]="day.exercises.length === 0">
+
+              <div class="plan-day-header">
+                <div class="plan-day-icon">
+                  <i class="ti" [ngClass]="getDayIcon(day.label)"></i>
+                </div>
+                <div>
+                  <div class="plan-day-name">{{ day.dayOfWeek }}</div>
+                  <div class="plan-day-label">{{ day.label || 'Rest' }}</div>
+                </div>
+              </div>
+
+              <div *ngIf="day.exercises.length > 0" class="plan-day-exercises">
+                <div *ngFor="let ex of day.exercises" class="plan-day-ex">
+                  <span class="plan-day-ex-name">{{ ex.exerciseName }}</span>
+                  <span class="plan-day-ex-target">{{ ex.targetSets }}×{{ ex.targetReps }}</span>
+                </div>
+              </div>
+
+              <div *ngIf="day.exercises.length === 0" class="rest-label">
+                <i class="ti ti-zzz"></i> Rest
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

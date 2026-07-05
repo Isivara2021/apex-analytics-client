@@ -1,1 +1,110 @@
-<p>workout-history works!</p>
+<div class="page">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="page-header history-header">
+      <div>
+        <h1>Workout History</h1>
+        <p>{{ sessions.length }} session{{ sessions.length !== 1 ? 's' : '' }} logged</p>
+      </div>
+      <a routerLink="/log-workout" class="btn btn-primary">
+        <i class="ti ti-plus"></i> Log Workout
+      </a>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error" class="alert alert-error">
+      <i class="ti ti-alert-circle"></i> {{ error }}
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="history-list">
+      <div class="skeleton history-skeleton" *ngFor="let i of [1,2,3,4]"></div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!loading && sessions.length === 0" class="empty-state animate-in">
+      <i class="ti ti-barbell"></i>
+      <h3>No workouts yet</h3>
+      <p>Start logging your workouts to track your progress over time.</p>
+      <a routerLink="/log-workout" class="btn btn-primary" style="margin-top:1rem;">
+        <i class="ti ti-plus"></i> Log First Workout
+      </a>
+    </div>
+
+    <!-- Session list -->
+    <div *ngIf="!loading && sessions.length > 0" class="history-list">
+      <div
+        *ngFor="let session of sessions; let i = index"
+        class="session-card animate-in"
+        [style]="'--delay:' + (i * 0.04) + 's'"
+        [class.expanded]="expandedSession === session.id">
+
+        <!-- Card header — always visible -->
+        <div class="session-header" (click)="toggleExpand(session.id)">
+          <div class="session-icon-wrap">
+            <div class="session-icon stat-icon" [ngClass]="getWorkoutTypeColor(session.workoutType)">
+              <i class="ti" [ngClass]="getWorkoutTypeIcon(session.workoutType)"></i>
+            </div>
+          </div>
+
+          <div class="session-info">
+            <div class="session-title">
+              <h4>{{ session.workoutType }}</h4>
+              <span class="session-date">{{ session.date | date:'EEE, MMM d, y' }}</span>
+            </div>
+            <div class="session-meta">
+              <span><i class="ti ti-clock"></i> {{ session.durationMinutes }} min</span>
+              <span><i class="ti ti-barbell"></i> {{ session.exercises.length }} exercises</span>
+              <span><i class="ti ti-layers"></i> {{ getTotalSets(session) }} sets</span>
+              <span class="session-volume"><i class="ti ti-weight"></i> {{ formatVolume(session.totalVolume) }} kg</span>
+            </div>
+          </div>
+
+          <div class="session-actions">
+            <button
+              class="btn-icon"
+              style="color:var(--danger)"
+              (click)="deleteSession(session.id, $event)"
+              [disabled]="deletingId === session.id"
+              title="Delete session">
+              <i class="ti" [class.ti-trash]="deletingId !== session.id" [class.ti-loader-2]="deletingId === session.id"></i>
+            </button>
+            <div class="expand-icon">
+              <i class="ti" [class.ti-chevron-down]="expandedSession !== session.id" [class.ti-chevron-up]="expandedSession === session.id"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expanded details -->
+        <div class="session-details" *ngIf="expandedSession === session.id">
+          <div class="divider" style="margin:0 0 1rem;"></div>
+
+          <!-- Notes -->
+          <div *ngIf="session.notes" class="session-notes">
+            <i class="ti ti-notes"></i>
+            <p>{{ session.notes }}</p>
+          </div>
+
+          <!-- Exercise breakdown -->
+          <div class="ex-breakdown">
+            <div *ngFor="let ex of session.exercises" class="ex-breakdown-item">
+              <div class="ex-breakdown-header">
+                <span class="ex-breakdown-name">{{ ex.exerciseName }}</span>
+                <span class="ex-breakdown-vol">{{ formatVolume(ex.totalVolume) }} kg</span>
+              </div>
+              <div class="sets-summary">
+                <div *ngFor="let set of ex.sets" class="set-pill">
+                  <span class="set-pill-num">{{ set.setNumber }}</span>
+                  <span>{{ set.weight }}kg × {{ set.reps }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

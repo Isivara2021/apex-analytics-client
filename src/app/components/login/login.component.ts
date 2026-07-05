@@ -9,7 +9,7 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrl: './login.component.css',
 })
 export class LoginComponent {
   email = '';
@@ -24,45 +24,68 @@ export class LoginComponent {
     private router: Router,
     private route: ActivatedRoute
   ) {
-    if (this.authService.isLoggedIn()) this.router.navigate(['/dashboard']);
-    if (this.route.snapshot.queryParamMap.get('registered') === 'true') {
+    // redirect if already logged in
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['/dashboard']);
+    }
+
+    // show success message after register
+    const registered = this.route.snapshot.queryParamMap.get('registered');
+    if (registered === 'true') {
       this.success = 'Account created successfully. Please sign in.';
     }
   }
 
   onSubmit(): void {
+    if (this.loading) return; // prevents double clicks
+
     if (!this.email || !this.password) {
       this.error = 'Please fill in all fields.';
       return;
     }
+
     this.loading = true;
     this.error = '';
     this.success = '';
+
     this.authService.login({ email: this.email, password: this.password }).subscribe({
-      next: async () => {
-        const navigated = await this.router.navigate(['/dashboard']);
-        if (!navigated) {
-          this.error = 'Login succeeded, but the dashboard could not be opened.';
-          this.loading = false;
-        }
-      },
-      error: (err) => {
-        this.error = this.getLoginError(err);
+      next: (res) => {
+        console.log('LOGIN SUCCESS', res);
+
         this.loading = false;
+
+        this.router.navigate(['/dashboard']).catch(() => {
+          this.error = 'Navigation failed. Please try again.';
+        });
+      },
+
+      error: (err) => {
+        console.log('LOGIN ERROR', err);
+
+        this.loading = false;
+        this.error = this.getLoginError(err);
+      },
+
+      complete: () => {
+        console.log('LOGIN REQUEST COMPLETE');
       }
     });
   }
 
   private getLoginError(err: any): string {
-    if (err.name === 'TimeoutError') {
+    if (err?.name === 'TimeoutError') {
       return 'Login is taking too long. Please try again.';
     }
 
-    if (err.status === 401) {
+    if (err?.status === 401) {
       return 'Invalid email or password. Please try again.';
     }
 
-    if (typeof err.error === 'string' && err.error.trim()) {
+    if (err?.status === 0) {
+      return 'Cannot connect to server. Please check your internet.';
+    }
+
+    if (typeof err?.error === 'string' && err.error.trim()) {
       return err.error;
     }
 

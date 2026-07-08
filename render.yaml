@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: apex-analytics-client
+    env: static
+    buildCommand: npm install && npm run build -- --configuration production
+    staticPublishPath: dist/apex-analytics-client/browser
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

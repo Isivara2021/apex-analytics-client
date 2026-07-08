@@ -11,7 +11,7 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
@@ -21,5 +21,5 @@ export const routes: Routes = [
   { path: 'body-progress', component: BodyProgressComponent, canActivate: [authGuard] },
   { path: 'planner', component: WeeklyPlannerComponent, canActivate: [authGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
-  { path: '**', redirectTo: '/dashboard' }
+  { path: '**', redirectTo: '/login' }
 ];

@@ -23,12 +23,8 @@ export class LoginComponent {
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {
-    if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/dashboard']);
-    }
-
     const registered = this.route.snapshot.queryParamMap.get('registered');
     if (registered === 'true') {
       this.success = 'Account created successfully. Please sign in.';
@@ -66,7 +62,7 @@ export class LoginComponent {
       },
       complete: () => {
         console.log('LOGIN REQUEST COMPLETE');
-      }
+      },
     });
   }
 
